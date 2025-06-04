@@ -14,7 +14,8 @@
 
 import { Injectable } from "@angular/core";
 import { DatabaseService, FunctionCall } from "./database.service";
-import { functionDeclarations, OpenAITool } from "./openai-function-declarations";
+import { functionDeclarations } from "./openai-function-declarations";
+import OpenAI from "openai";
 import { LogService } from "./log.service";
 
 type ResponseType = "none" | "waiting" | "unknown" | "functionCalls" | "invalidFunctionCalls" | "text" | "error";
@@ -36,6 +37,7 @@ export class OpenAIService {
 
   private modelVersion = '';
   private apiKey = '';
+  private client?: OpenAI;
 
   systemInstruction = "";
 
@@ -49,6 +51,7 @@ export class OpenAIService {
   configure(modelVersion: string, apiKey: string) {
     this.modelVersion = modelVersion;
     this.apiKey = apiKey;
+    this.client = new OpenAI({ apiKey });
   }
 
   async generateResponse(prompt: string) {
@@ -75,25 +78,14 @@ export class OpenAIService {
       this.log.info("Sending prompt:\n-----\n" + prompt + "\n-----");
       messages.push({ role: 'user', content: prompt });
 
-      const body = {
+      const result = await this.client!.chat.completions.create({
         model: this.modelVersion,
         messages,
-        tools: functionDeclarations,
+        tools: functionDeclarations as any,
         tool_choice: 'auto',
-      };
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify(body),
       });
 
-      const result = await response.json();
-
-      const message = result.choices?.[0]?.message;
+      const message = (result.choices && result.choices[0]?.message) as any;
       const calls = message?.tool_calls;
       if (calls) {
         this.log.info("Received", calls.length, "function calls.");
