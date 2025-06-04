@@ -61,7 +61,12 @@ export class DatabaseService {
   }
 
   getOrMakeTable(tableName: string): Table {
-    return this.tables.find(t => t.tableName == tableName) || {} as Table;
+    let table = this.tables.find(t => t.tableName == tableName);
+    if (!table) {
+      table = { tableName, columns: [] };
+      this.tables.push(table);
+    }
+    return table;
   }
 
   alterTable(log: LogService, args: alterTableArgs) {

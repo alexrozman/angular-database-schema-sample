@@ -61,7 +61,7 @@ const createTableSchema: { [k: string]: FunctionDeclarationSchemaProperty } = {
     columns: columnsSchema,
 };
 
-const aterTableSchema: { [k: string]: FunctionDeclarationSchemaProperty } = {
+const alterTableSchema: { [k: string]: FunctionDeclarationSchemaProperty } = {
     tableName: tableNameSchema,
     addColumns: columnsSchema,
     removeColumns: columnsSchema,
@@ -83,7 +83,7 @@ const alterTableFunctionDeclaration: FunctionDeclaration = {
     parameters: {
         type: FunctionDeclarationSchemaType.OBJECT,
         description: "Alter database table. Modifies column definitions.",
-        properties: aterTableSchema,
+        properties: alterTableSchema,
         required: ["tableName"],
     },
 };
