@@ -1,8 +1,8 @@
 # Angular database schema sample
 
-Developer sample written in Angular, demonstrating how to use the Gemini API and
-function calling to collaboratively and iteratively create a database schema
-using natural language prompts.
+Developer sample written in Angular, demonstrating how to use the OpenAI API
+with GPT-4o and function calling to collaboratively and iteratively create a
+database schema using natural language prompts.
 
 <a href="https://idx.google.com/import?url=https://github.com/google-gemini/angular-database-schema-sample">
 <picture>
@@ -15,12 +15,12 @@ using natural language prompts.
 ## Usage notes
 
 > [!CAUTION]
-> Using the Google AI SDK directly from a client-side app as is shown in
+> Using the OpenAI API directly from a client-side app as is shown in
 > this sample is recommended for prototyping only. For non-prototyping use
-> cases, we strongly recommend that you call the Google AI Gemini API only
-> server-side to keep your API key safe. If you embed your API key directly in
-> your web app or fetch it remotely at runtime, you risk potentially exposing
-> your API key to malicious actors.
+> cases, we strongly recommend that you call the API server-side to keep your
+> API key safe. If you embed your API key directly in your web app or fetch it
+> remotely at runtime, you risk potentially exposing your API key to malicious
+> actors.
 
 This project was initially generated with
 [Angular CLI](https://github.com/angular/angular-cli) version 17.0.5.

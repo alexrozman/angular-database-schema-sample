@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, viewChild } from '@angular/core';
 import { LogService } from '../log.service';
-import { GeminiService } from '../gemini.service';
+import { OpenAIService } from '../openai.service';
 import { HelpfulLabelComponent } from '../helpful-label/helpful-label.component';
 
 @Component({
@@ -16,11 +16,11 @@ export class ModelConfigComponent implements OnInit {
 
   constructor(
     private log: LogService,
-    protected gemini: GeminiService,
+    protected openai: OpenAIService,
   ) { }
 
-  // https://ai.google.dev/gemini-api/docs/models/gemini#model-versions
-  defaultModelVersion = "gemini-1.5-flash-latest";
+  // https://platform.openai.com/docs/models/gpt-4o
+  defaultModelVersion = "gpt-4o";
 
   systemInstruction = `You are an AI database agent.
 
@@ -55,12 +55,12 @@ members, and loans.`;
     const modelVersion = this.modelVersion().nativeElement.value;
     const apiKey = this.apiKey().nativeElement.value
     if (modelVersion && apiKey) {
-      this.gemini.configure(modelVersion, apiKey);
+      this.openai.configure(modelVersion, apiKey);
     }
   }
 
   setSystemInstruction(systemInstruction: string) {
-    this.gemini.setSystemInstruction(systemInstruction);
+    this.openai.setSystemInstruction(systemInstruction);
   }
 
 }

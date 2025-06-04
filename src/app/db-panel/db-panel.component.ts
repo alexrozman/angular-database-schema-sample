@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DatabaseService } from '../database.service';
-import { GeminiService } from '../gemini.service';
+import { OpenAIService } from '../openai.service';
 import { LogService } from '../log.service';
 import { HelpfulLabelComponent } from '../helpful-label/helpful-label.component';
 
@@ -13,12 +13,12 @@ import { HelpfulLabelComponent } from '../helpful-label/helpful-label.component'
 })
 export class DbPanelComponent {
 
-  // True while waiting for Gemini API response.
+  // True while waiting for OpenAI API response.
   protected waiting = false;
 
   constructor(
     private log: LogService,
-    protected gemini: GeminiService,
+    protected openai: OpenAIService,
     protected database: DatabaseService,
   ) { }
 
@@ -46,7 +46,7 @@ export class DbPanelComponent {
   async generateResponse(prompt: string) {
     this.waiting = true;
     try {
-      await this.gemini.generateResponse(prompt);
+      await this.openai.generateResponse(prompt);
     } catch (e) {
       this.log.catch(e);
     } finally {

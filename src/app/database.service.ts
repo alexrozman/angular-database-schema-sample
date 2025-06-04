@@ -14,7 +14,7 @@
 
 import { Injectable } from '@angular/core';
 import { LogService } from './log.service';
-import { FunctionCall } from '@google/generative-ai';
+export interface FunctionCall { name: string; args: any; }
 
 export const ColumnTypeValues = ['string', 'integer', 'date'] as const;
 type ColumnType = typeof ColumnTypeValues[number];

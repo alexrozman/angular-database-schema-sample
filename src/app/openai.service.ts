@@ -13,9 +13,8 @@
 // limitations under the License.
 
 import { Injectable } from "@angular/core";
-import { FunctionCallingMode, GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
-import { DatabaseService } from "./database.service";
-import { functionDeclarations } from "./gemini-function-declarations";
+import { DatabaseService, FunctionCall } from "./database.service";
+import { functionDeclarations, OpenAITool } from "./openai-function-declarations";
 import { LogService } from "./log.service";
 
 type ResponseType = "none" | "waiting" | "unknown" | "functionCalls" | "invalidFunctionCalls" | "text" | "error";
@@ -28,14 +27,15 @@ type Response = {
 @Injectable({
   providedIn: "root"
 })
-export class GeminiService {
+export class OpenAIService {
 
   constructor(
     private log: LogService,
     private database: DatabaseService,
   ) { }
 
-  model!: GenerativeModel;
+  private modelVersion = '';
+  private apiKey = '';
 
   systemInstruction = "";
 
@@ -47,12 +47,12 @@ export class GeminiService {
   }
 
   configure(modelVersion: string, apiKey: string) {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    this.model = genAI.getGenerativeModel({ model: modelVersion });
+    this.modelVersion = modelVersion;
+    this.apiKey = apiKey;
   }
 
   async generateResponse(prompt: string) {
-    if (!this.model) {
+    if (!this.apiKey || !this.modelVersion) {
       this.lastResponse = {
         type: "error",
         response: 'You must specify a model name and valid API Key.',
@@ -63,23 +63,9 @@ export class GeminiService {
     try {
       this.lastResponse = { type: "waiting" };
 
-      this.model.tools = [{
-        functionDeclarations: functionDeclarations,
-      }];
-
-      this.model.toolConfig = {
-        functionCallingConfig: {
-          // Require function calling response.
-          mode: FunctionCallingMode.ANY,
-          allowedFunctionNames: ["createTable", "alterTable"],
-        }
-      };
-
+      const messages: any[] = [];
       if (this.systemInstruction) {
-        this.model.systemInstruction = {
-          role: "user",
-          parts: [{ text: this.systemInstruction }],
-        };
+        messages.push({ role: 'system', content: this.systemInstruction });
       }
 
       prompt = prompt + "\nCurrent database schema:\n" +
@@ -87,12 +73,35 @@ export class GeminiService {
           JSON.stringify(this.database.tables)
           : "None, the database does not contain any table definitions.");
       this.log.info("Sending prompt:\n-----\n" + prompt + "\n-----");
-      const result = await this.model.generateContent(prompt);
+      messages.push({ role: 'user', content: prompt });
 
-      const calls = result.response.functionCalls();
+      const body = {
+        model: this.modelVersion,
+        messages,
+        tools: functionDeclarations,
+        tool_choice: 'auto',
+      };
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const result = await response.json();
+
+      const message = result.choices?.[0]?.message;
+      const calls = message?.tool_calls;
       if (calls) {
         this.log.info("Received", calls.length, "function calls.");
-        const success = calls.every((fc, i) => {
+        const success = calls.every((call: any) => {
+          const fc: FunctionCall = {
+            name: call.function.name,
+            args: JSON.parse(call.function.arguments || '{}'),
+          };
           this.log.info("Received function call response:", fc);
           const err = this.database.callFunction(fc);
           if (err) {
@@ -106,17 +115,17 @@ export class GeminiService {
           type: success ? "functionCalls" : "invalidFunctionCalls",
           response: JSON.stringify(calls, null, 2),
         };
-      } else if (result.response.text()) {
-        this.log.info("Received text response:", result.response.text());
+      } else if (message?.content) {
+        this.log.info("Received text response:", message.content);
         this.lastResponse = {
           type: "text",
-          response: result.response.text(),
+          response: message.content,
         };
       } else {
         this.lastResponse = {
           type: "unknown",
-          response: JSON.stringify(result.response),
-        }
+          response: JSON.stringify(result),
+        };
       }
     } catch (e) {
       this.lastResponse = {
