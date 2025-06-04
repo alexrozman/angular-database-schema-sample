@@ -1,6 +1,6 @@
 <div class="section">
     <app-helpful-label for="modelVersion" label="Model version">
-        Specify a <a target="_blank" href="https://ai.google.dev/gemini-api/docs/models/gemini#model-versions">model
+        Specify a <a target="_blank" href="https://platform.openai.com/docs/models/gpt-4o">model
             version</a>
         such as <code class="example">{{defaultModelVersion}}</code>.
     </app-helpful-label>
@@ -17,7 +17,7 @@
         <a target="_blank" href="https://aistudio.google.com/">Google AI Studio</a> and click <b>Get API key</b>.
     </app-helpful-label>
 
-    <input id="apiKey" #apiKey size="40" placeholder="Paste in your Gemini API key" class="code" required
+    <input id="apiKey" #apiKey size="40" placeholder="Paste in your OpenAI API key" class="code" required
         (change)="configure()" value="">
 </div>
 
@@ -25,7 +25,7 @@
 
 <div class="section">
     <app-helpful-label for="systemInstructionInput" label="System Instructions">
-        Update these <a target="_blank" href="https://ai.google.dev/gemini-api/docs/system-instructions">system
+        Update these <a target="_blank" href="https://platform.openai.com/docs/guides/function-calling">system
             instructions</a>
         to affect model behavior and help improve responses.
     </app-helpful-label>

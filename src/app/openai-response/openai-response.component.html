@@ -1,22 +1,22 @@
-@if(gemini.lastResponse && gemini.lastResponse.type != "none") {
+@if(openai.lastResponse && openai.lastResponse.type != "none") {
 <div class="section">
     <app-helpful-label for="prompt" label="Model response">
         The type and contents of the models last response.
     </app-helpful-label>
 
-    <div class="last-response-type" [class]="gemini.lastResponse.type">
-        @switch (gemini.lastResponse.type) {
+    <div class="last-response-type" [class]="openai.lastResponse.type">
+        @switch (openai.lastResponse.type) {
         @case ("waiting") {Waiting for response…}
         @case ("unknown") {Unknown response type}
         @case ("functionCalls") {Function Calls}
         @case ("invalidFunctionCalls") {Function Calls with one or more unknown functions}
         @case ("text") {Text response}
         @case ("error") {Error}
-        @default { {{gemini.lastResponse.type}} }
+        @default { {{openai.lastResponse.type}} }
         }
     </div>
 
-    <div class="code last-response" [class]="gemini.lastResponse.type">{{gemini.lastResponse.response}}</div>
+    <div class="code last-response" [class]="openai.lastResponse.type">{{openai.lastResponse.response}}</div>
 </div>
 }
 
