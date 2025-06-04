@@ -61,7 +61,12 @@ export class DatabaseService {
   }
 
   getOrMakeTable(tableName: string): Table {
-    return this.tables.find(t => t.tableName == tableName) || {} as Table;
+    let table = this.tables.find(t => t.tableName == tableName);
+    if (!table) {
+      table = { tableName, columns: [] };
+      this.tables.push(table);
+    }
+    return table;
   }
 
   alterTable(log: LogService, args: alterTableArgs) {
@@ -109,13 +114,13 @@ export class DatabaseService {
   callFunction(fc: FunctionCall) : Error | undefined {
     const f = this.dbfunctions[fc.name];
     if (!f) {
-      return Error("Model requested call to non-existant function: " + fc.name);
+      return Error("Model requested call to non-existent function: " + fc.name);
     }
     try {
       f.apply(this, [this.log, fc.args]);
       return undefined;
     } catch(e) {
-      return Error("Failed to call requested funciton " + fc.name, {cause: e});
+      return Error("Failed to call requested function " + fc.name, {cause: e});
     }
   }
 }
