@@ -23,7 +23,7 @@ using natural language prompts.
 > your API key to malicious actors.
 
 This project was initially generated with
-[Angular CLI](https://github.com/angular/angular-cli) version 17.0.5.
+[Angular CLI](https://github.com/angular/angular-cli) version 18.0.5.
 
 ## Development server
 
